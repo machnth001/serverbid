@@ -59,24 +59,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Dynamically detect the live site URL from request headers (works on live domain, Vercel & localhost)
-    const host = request.headers.get("x-forwarded-host") || request.headers.get("host");
-    const proto = request.headers.get("x-forwarded-proto") || (host?.includes("localhost") ? "http" : "https");
-    const originHeader = request.headers.get("origin") || request.headers.get("referer");
-    
-    let siteUrl = "";
-    if (originHeader) {
-      try {
-        siteUrl = new URL(originHeader).origin;
-      } catch {}
-    }
-    if (!siteUrl && host) {
-      siteUrl = `${proto}://${host}`;
-    }
-    if (!siteUrl) {
-      siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://bidserver.lol";
-    }
-    siteUrl = siteUrl.replace(/\/+$/, "");
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
     // Dodo Payments limits metadata key/value strings to <= 500 chars.
     // If the bidder uploaded a base64 image or a long URL, do not send it in Dodo metadata.
@@ -96,9 +80,9 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      payment_link: true,
-      return_url: `${siteUrl}/?payment=success&slot=${slot_id}`,
-      success_url: `${siteUrl}/?payment=success&slot=${slot_id}`,
+      // Do NOT use payment_link:true — it shows Dodo's own order summary and doesn't redirect.
+      // Use a hosted checkout session with success_url instead.
+      success_url: `${siteUrl}/?payment=success&slot=${slot_id}&session={CHECKOUT_SESSION_ID}`,
       cancel_url: `${siteUrl}/?payment=cancelled&slot=${slot_id}`,
       metadata: {
         slot_id: String(slot_id),
@@ -115,10 +99,19 @@ export async function POST(request: NextRequest) {
       (session as { id?: string }).id ||
       `session_${Date.now()}`;
 
+    // Dodo returns checkout_url for hosted checkout sessions
     const checkoutUrl =
       session.checkout_url ||
       (session as { payment_link?: string }).payment_link ||
       (session as { url?: string }).url;
+
+    if (!checkoutUrl) {
+      console.error("No checkout URL returned from Dodo. Session response:", JSON.stringify(session));
+      return NextResponse.json(
+        { error: "Failed to generate checkout URL. Please check Dodo Product ID and API key." },
+        { status: 500 }
+      );
+    }
 
     // Store pending bid in database
     const admin = createAdminClient();
@@ -132,6 +125,8 @@ export async function POST(request: NextRequest) {
       expires_at: expiresAt,
       status: "pending",
     });
+
+    console.log(`[Checkout] Created session ${sessionId} for slot #${slot_id}, URL: ${checkoutUrl}`);
 
     return NextResponse.json({
       checkout_url: checkoutUrl,

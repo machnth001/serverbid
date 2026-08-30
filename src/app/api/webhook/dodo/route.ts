@@ -70,8 +70,7 @@ export async function POST(request: NextRequest) {
           slotId,
           amount,
           bidderInfo,
-          paymentId,
-          sessionId
+          paymentId
         );
 
         if (!result.success) {
