@@ -80,10 +80,9 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      // Do NOT use payment_link:true — it shows Dodo's own order summary and doesn't redirect.
-      // Use a hosted checkout session with success_url instead.
-      success_url: `${siteUrl}/?payment=success&slot=${slot_id}&session={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${siteUrl}/?payment=cancelled&slot=${slot_id}`,
+      // return_url: Dodo's actual redirect param — fires after payment success OR cancel.
+      // success_url/cancel_url alone do NOT redirect; return_url is required.
+      return_url: `${siteUrl}/?payment=success&slot=${slot_id}&session={CHECKOUT_SESSION_ID}`,
       metadata: {
         slot_id: String(slot_id),
         amount: String(amount),
