@@ -59,8 +59,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    // Dynamically detect the live site URL from request headers (works on live domain, Vercel & localhost)
+    const host = request.headers.get("x-forwarded-host") || request.headers.get("host");
+    const proto = request.headers.get("x-forwarded-proto") || (host?.includes("localhost") ? "http" : "https");
+    const originHeader = request.headers.get("origin") || request.headers.get("referer");
+    
+    let siteUrl = "";
+    if (originHeader) {
+      try {
+        siteUrl = new URL(originHeader).origin;
+      } catch {}
+    }
+    if (!siteUrl && host) {
+      siteUrl = `${proto}://${host}`;
+    }
+    if (!siteUrl) {
+      siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://bidserver.lol";
+    }
+    siteUrl = siteUrl.replace(/\/+$/, "");
 
     // Dodo Payments limits metadata key/value strings to <= 500 chars.
     // If the bidder uploaded a base64 image or a long URL, do not send it in Dodo metadata.
