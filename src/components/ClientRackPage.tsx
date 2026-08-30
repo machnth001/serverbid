@@ -172,6 +172,17 @@ function MainContent({ initialSlots, initialActivities }: ClientRackPageProps) {
         isOpen={isHowItWorksOpen}
         onClose={() => setIsHowItWorksOpen(false)}
       />
+
+      {/* Bottom Compliance & Legal Links */}
+      <footer className="fixed bottom-3 right-4 z-20 flex items-center gap-2 sm:gap-3 px-3 py-1.5 rounded-full bg-zinc-950/85 backdrop-blur-md border border-zinc-800/80 text-[10px] font-mono text-zinc-400">
+        <a href="/terms" className="hover:text-cyan-400 transition-colors">Terms</a>
+        <span>•</span>
+        <a href="/privacy" className="hover:text-cyan-400 transition-colors">Privacy</a>
+        <span>•</span>
+        <a href="/refund" className="hover:text-cyan-400 transition-colors">Refunds</a>
+        <span>•</span>
+        <a href="/contact" className="hover:text-cyan-400 transition-colors">Contact</a>
+      </footer>
     </main>
   );
 }

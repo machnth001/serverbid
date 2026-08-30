@@ -95,6 +95,17 @@ export function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProps) {
             </div>
           </div>
 
+          {/* Legal and Compliance Links */}
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-2 border-t border-zinc-800/60 text-[11px] font-mono text-zinc-400">
+            <a href="/terms" className="hover:text-cyan-400 transition-colors underline">Terms of Service</a>
+            <span>•</span>
+            <a href="/privacy" className="hover:text-cyan-400 transition-colors underline">Privacy Policy</a>
+            <span>•</span>
+            <a href="/refund" className="hover:text-cyan-400 transition-colors underline">Refund Policy</a>
+            <span>•</span>
+            <a href="/contact" className="hover:text-cyan-400 transition-colors underline">Contact & Support</a>
+          </div>
+
           {/* Close button */}
           <button
             onClick={onClose}
