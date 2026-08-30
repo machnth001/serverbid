@@ -26,7 +26,7 @@ export function BragModal({ slotId, isOpen, onClose }: BragModalProps) {
   const [copied, setCopied] = useState(false);
 
   const formattedSlot = formatSlotId(slotId);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://bidserver.lol";
+  const siteUrl = "https://www.bidserver.lol";
 
   const tweetText = `Just racked my startup onto Slot ${formattedSlot} of bidserver.lol! 🚀 Try to pull my plug: ${siteUrl}`;
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(

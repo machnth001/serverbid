@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description:
     "12 finite slots. The world's most contested 3D server rack. Hot-swap advertising for tech founders, developers, and startups.",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://bidserver.lol"
+    "https://www.bidserver.lol"
   ),
   openGraph: {
     title: "bidserver.lol — The Global Tech Server Rack",

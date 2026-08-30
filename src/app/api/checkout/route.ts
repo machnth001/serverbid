@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     const siteUrl =
-      process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+      process.env.SITE_URL || "https://www.bidserver.lol";
 
     // Dodo Payments limits metadata key/value strings to <= 500 chars.
     // If the bidder uploaded a base64 image or a long URL, do not send it in Dodo metadata.
