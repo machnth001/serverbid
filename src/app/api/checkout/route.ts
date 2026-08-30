@@ -97,7 +97,8 @@ export async function POST(request: NextRequest) {
         },
       ],
       payment_link: true,
-      success_url: `${siteUrl}/?payment=success&slot=${slot_id}&session={CHECKOUT_SESSION_ID}`,
+      return_url: `${siteUrl}/?payment=success&slot=${slot_id}`,
+      success_url: `${siteUrl}/?payment=success&slot=${slot_id}`,
       cancel_url: `${siteUrl}/?payment=cancelled&slot=${slot_id}`,
       metadata: {
         slot_id: String(slot_id),
