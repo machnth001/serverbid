@@ -35,7 +35,6 @@ export async function POST(request: NextRequest) {
         .from("pending_bids")
         .select("*")
         .eq("slot_id", slotId)
-        .eq("status", "pending")
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -92,6 +91,7 @@ export async function POST(request: NextRequest) {
       slot_id: targetSlotId,
       amount: targetAmount,
       bidder: bidderInfo,
+      slot: result.slot,
     });
   } catch (error) {
     console.error("Verify checkout error:", error);

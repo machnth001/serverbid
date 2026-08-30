@@ -57,6 +57,8 @@ function MainContent({ initialSlots, initialActivities }: ClientRackPageProps) {
     activities,
     totalValuation,
     simulateOutbid,
+    triggerHotSwap,
+    refetchSlots,
   } = useRealtimeSlots(initialSlots, initialActivities);
 
   // Vertical rack scroll state (Initial Y focused on Slot #1 with top space)
@@ -104,7 +106,13 @@ function MainContent({ initialSlots, initialActivities }: ClientRackPageProps) {
           .then((res) => res.json())
           .then((data) => {
             if (data.success) {
-              console.log(`[Checkout Verify] Slot #${slotNum} claimed successfully!`);
+              console.log(`[Checkout Verify] Slot #${slotNum} claimed successfully!`, data);
+              if (data.slot) {
+                triggerHotSwap(slotNum, data.slot);
+              }
+              refetchSlots();
+            } else {
+              console.warn("[Checkout Verify] Warning:", data.error);
             }
           })
           .catch((err) => {
@@ -118,7 +126,7 @@ function MainContent({ initialSlots, initialActivities }: ClientRackPageProps) {
           });
       }
     }
-  }, [searchParams, setSelectedSlotId]);
+  }, [searchParams, setSelectedSlotId, triggerHotSwap, refetchSlots]);
 
   // Jump camera directly to specific slot
   const handleJumpToSlot = useCallback(

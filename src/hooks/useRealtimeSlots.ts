@@ -102,7 +102,6 @@ export function useRealtimeSlots(
 
     const supabase = createClient();
 
-    // 1. Fetch live data from Supabase DB
     const fetchInitialData = async () => {
       try {
         const { data: slotsData, error: slotsError } = await supabase
@@ -176,6 +175,22 @@ export function useRealtimeSlots(
     };
   }, [triggerHotSwap]);
 
+  const refetchSlots = useCallback(async () => {
+    try {
+      const supabase = createClient();
+      const { data: slotsData } = await supabase
+        .from("slots")
+        .select("*")
+        .order("id", { ascending: true });
+
+      if (slotsData && slotsData.length > 0) {
+        setSlots(slotsData as Slot[]);
+      }
+    } catch (e) {
+      console.warn("Error refetching slots:", e);
+    }
+  }, []);
+
   // Outbid simulation helper for testing
   const simulateOutbid = useCallback(
     (slotId: number, customBidder?: { name: string; handle: string; logo_url: string; company_url: string; description?: string }) => {
@@ -227,5 +242,7 @@ export function useRealtimeSlots(
     activities,
     totalValuation,
     simulateOutbid,
+    triggerHotSwap,
+    refetchSlots,
   };
 }

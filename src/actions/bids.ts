@@ -71,7 +71,7 @@ export async function getRecentActivity(limit = 20): Promise<BidHistoryItem[]> {
 }
 
 // ============================================================
-// processSuccessfulBid — Called by webhook after payment confirmed
+// processSuccessfulBid — Called by webhook or redirect verify after payment confirmed
 // ============================================================
 export async function processSuccessfulBid(
   slotId: number,
@@ -79,34 +79,27 @@ export async function processSuccessfulBid(
   bidderInfo: Bidder,
   paymentId: string,
   sessionId?: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; slot?: Slot }> {
   const admin = createAdminClient();
 
-  // 0. Check if this payment or session was already processed
-  const { data: existingPayment } = await admin
-    .from("bid_history")
-    .select("id")
-    .eq("payment_id", paymentId)
-    .maybeSingle();
-
-  if (existingPayment) {
-    return { success: true };
-  }
-
-  // 1. Get current slot to record outbid
-  const { data: currentSlot } = await admin
+  // 1. Get current slot
+  const { data: currentSlot, error: fetchError } = await admin
     .from("slots")
     .select("*")
     .eq("id", slotId)
     .single();
 
+  if (fetchError) {
+    console.error("processSuccessfulBid fetch slot error:", fetchError);
+  }
+
   const slot = currentSlot as Slot | null;
 
-  // 2. Validate bid is still valid (race condition guard)
-  if (slot && slot.current_bid >= amount) {
+  // 2. Validate bid is still valid (only guard against lower bids when slot is already held)
+  if (slot && slot.status !== "empty" && Number(slot.current_bid) >= Number(amount)) {
     return {
       success: false,
-      error: "Bid amount is no longer sufficient — another bid came in faster.",
+      error: `Bid amount $${amount} is not higher than current bid $${slot.current_bid}.`,
     };
   }
 
@@ -120,7 +113,6 @@ export async function processSuccessfulBid(
       SLOT_CONFIG.ANTI_SNIPE_WINDOW_MINUTES * 60 * 1000;
 
     if (msToDeadline > 0 && msToDeadline < snipeWindowMs) {
-      // Extend by ANTI_SNIPE_EXTENSION_MINUTES
       const extended = new Date(
         now.getTime() +
           SLOT_CONFIG.ANTI_SNIPE_EXTENSION_MINUTES * 60 * 1000
@@ -138,20 +130,26 @@ export async function processSuccessfulBid(
       .is("outbid_at", null);
   }
 
-  // 5. Upsert slot with new holder
-  const { error: slotError } = await admin
+  // 5. Update slot with new holder
+  const updatedHolder = {
+    ...bidderInfo,
+    bid_at: new Date().toISOString(),
+  };
+
+  const updatedSlotData = {
+    current_bid: amount,
+    current_holder: updatedHolder,
+    status: "hot" as const,
+    bid_deadline: bidDeadline ?? slot?.bid_deadline ?? null,
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data: updatedSlotResult, error: slotError } = await admin
     .from("slots")
-    .update({
-      current_bid: amount,
-      current_holder: {
-        ...bidderInfo,
-        bid_at: new Date().toISOString(),
-      },
-      status: "hot",
-      bid_deadline: bidDeadline ?? slot?.bid_deadline ?? null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", slotId);
+    .update(updatedSlotData)
+    .eq("id", slotId)
+    .select("*")
+    .single();
 
   if (slotError) {
     console.error("processSuccessfulBid slotError:", slotError);
@@ -159,7 +157,7 @@ export async function processSuccessfulBid(
   }
 
   // 6. Insert bid history record
-  const { error: historyError } = await admin.from("bid_history").insert({
+  await admin.from("bid_history").insert({
     slot_id: slotId,
     bidder_name: bidderInfo.name,
     bidder_handle: bidderInfo.handle,
@@ -167,11 +165,6 @@ export async function processSuccessfulBid(
     amount,
     payment_id: paymentId,
   });
-
-  if (historyError) {
-    console.error("processSuccessfulBid historyError:", historyError);
-    // Non-fatal — slot already updated
-  }
 
   // 7. Mark pending bid as paid
   if (sessionId) {
@@ -183,9 +176,18 @@ export async function processSuccessfulBid(
   await admin
     .from("pending_bids")
     .update({ status: "paid" })
-    .eq("checkout_session_id", paymentId);
+    .eq("slot_id", slotId)
+    .eq("status", "pending");
 
-  return { success: true };
+  return {
+    success: true,
+    slot: (updatedSlotResult as Slot) || {
+      id: slotId,
+      tier: slotId === 1 ? "master" : "blade",
+      ...updatedSlotData,
+      created_at: slot?.created_at || new Date().toISOString(),
+    },
+  };
 }
 
 // ============================================================
