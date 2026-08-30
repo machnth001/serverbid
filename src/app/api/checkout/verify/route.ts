@@ -1,27 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import DodoPayments from "dodopayments";
+import { getDodoClient } from "@/lib/dodo";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { processSuccessfulBid } from "@/actions/bids";
 import { Bidder } from "@/types";
 
-function getDodoClient() {
-  const apiKey = process.env.DODO_PAYMENTS_API_KEY || "";
-  const envMode = process.env.DODO_PAYMENTS_ENVIRONMENT
-    ? (process.env.DODO_PAYMENTS_ENVIRONMENT as "live_mode" | "test_mode")
-    : apiKey.startsWith("test_")
-    ? "test_mode"
-    : process.env.NODE_ENV === "production"
-    ? "live_mode"
-    : "test_mode";
-
-  return new DodoPayments({
-    bearerToken: apiKey,
-    environment: envMode,
-  });
-}
-
 export async function POST(request: NextRequest) {
   try {
+    const dodo = getDodoClient();
     const { sessionId, slotId } = await request.json();
 
     if (!sessionId && !slotId) {
@@ -72,7 +57,6 @@ export async function POST(request: NextRequest) {
 
     if (targetSessionId && !targetSessionId.includes("{") && process.env.DODO_PAYMENTS_API_KEY) {
       try {
-        const dodo = getDodoClient();
         const sessionStatus = await dodo.checkoutSessions.retrieve(targetSessionId);
         if (
           sessionStatus.payment_status === "succeeded" ||
