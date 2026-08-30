@@ -76,19 +76,49 @@ function MainContent({ initialSlots, initialActivities }: ClientRackPageProps) {
     setIsLegalModalOpen(true);
   };
 
-  // Check URL params for post-checkout redirection (?payment=success&slot=X)
+  // Check URL params for post-checkout redirection (?payment=success&slot=X&session=...)
   useEffect(() => {
     const paymentStatus = searchParams.get("payment");
     const slotParam = searchParams.get("slot");
+    const sessionParam =
+      searchParams.get("session") ||
+      searchParams.get("session_id") ||
+      searchParams.get("checkout_session_id");
 
     if (paymentStatus === "success" && slotParam) {
       const slotNum = parseInt(slotParam, 10);
       if (!isNaN(slotNum)) {
         setBragSlotId(slotNum);
         setIsBragModalOpen(true);
+        setSelectedSlotId(slotNum);
+
+        // Verify and claim the slot immediately
+        fetch("/api/checkout/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            slotId: slotNum,
+            sessionId: sessionParam || undefined,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              console.log(`[Checkout Verify] Slot #${slotNum} claimed successfully!`);
+            }
+          })
+          .catch((err) => {
+            console.error("[Checkout Verify] Error verifying session:", err);
+          })
+          .finally(() => {
+            // Clean URL query params cleanly without page reload
+            if (typeof window !== "undefined") {
+              window.history.replaceState({}, document.title, window.location.pathname);
+            }
+          });
       }
     }
-  }, [searchParams]);
+  }, [searchParams, setSelectedSlotId]);
 
   // Jump camera directly to specific slot
   const handleJumpToSlot = useCallback(

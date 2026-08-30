@@ -77,9 +77,21 @@ export async function processSuccessfulBid(
   slotId: number,
   amount: number,
   bidderInfo: Bidder,
-  paymentId: string
+  paymentId: string,
+  sessionId?: string
 ): Promise<{ success: boolean; error?: string }> {
   const admin = createAdminClient();
+
+  // 0. Check if this payment or session was already processed
+  const { data: existingPayment } = await admin
+    .from("bid_history")
+    .select("id")
+    .eq("payment_id", paymentId)
+    .maybeSingle();
+
+  if (existingPayment) {
+    return { success: true };
+  }
 
   // 1. Get current slot to record outbid
   const { data: currentSlot } = await admin
@@ -162,6 +174,12 @@ export async function processSuccessfulBid(
   }
 
   // 7. Mark pending bid as paid
+  if (sessionId) {
+    await admin
+      .from("pending_bids")
+      .update({ status: "paid" })
+      .eq("checkout_session_id", sessionId);
+  }
   await admin
     .from("pending_bids")
     .update({ status: "paid" })
