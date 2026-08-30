@@ -6,9 +6,18 @@ import { X, Flame, ShieldAlert, Cpu, Share2 } from "lucide-react";
 interface HowItWorksModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenLegal?: (tab: "terms" | "privacy" | "refund" | "contact") => void;
 }
 
-export function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProps) {
+export function HowItWorksModal({ isOpen, onClose, onOpenLegal }: HowItWorksModalProps) {
+  const handleLegalClick = (tab: "terms" | "privacy" | "refund" | "contact", e: React.MouseEvent) => {
+    if (onOpenLegal) {
+      e.preventDefault();
+      onClose();
+      onOpenLegal(tab);
+    }
+  };
+
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
@@ -97,13 +106,13 @@ export function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProps) {
 
           {/* Legal and Compliance Links */}
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2 border-t border-zinc-800/60 text-[11px] font-mono text-zinc-400">
-            <a href="/terms" className="hover:text-cyan-400 transition-colors underline">Terms of Service</a>
+            <button onClick={(e) => handleLegalClick("terms", e)} className="hover:text-cyan-400 transition-colors underline cursor-pointer">Terms of Service</button>
             <span>•</span>
-            <a href="/privacy" className="hover:text-cyan-400 transition-colors underline">Privacy Policy</a>
+            <button onClick={(e) => handleLegalClick("privacy", e)} className="hover:text-cyan-400 transition-colors underline cursor-pointer">Privacy Policy</button>
             <span>•</span>
-            <a href="/refund" className="hover:text-cyan-400 transition-colors underline">Refund Policy</a>
+            <button onClick={(e) => handleLegalClick("refund", e)} className="hover:text-cyan-400 transition-colors underline cursor-pointer">Refund Policy</button>
             <span>•</span>
-            <a href="/contact" className="hover:text-cyan-400 transition-colors underline">Contact & Support</a>
+            <button onClick={(e) => handleLegalClick("contact", e)} className="hover:text-cyan-400 transition-colors underline cursor-pointer">Contact & Support</button>
           </div>
 
           {/* Close button */}

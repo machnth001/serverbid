@@ -11,6 +11,7 @@ import { SlotInfoPanel } from "@/components/ui/SlotInfoPanel";
 import { BidModal } from "@/components/ui/BidModal";
 import { BragModal } from "@/components/ui/BragModal";
 import { HowItWorksModal } from "@/components/ui/HowItWorksModal";
+import { LegalModal, LegalTab } from "@/components/ui/LegalModal";
 import { RackScrollNavigator } from "@/components/ui/RackScrollNavigator";
 import { Slot, ActivityEvent } from "@/types";
 
@@ -65,8 +66,15 @@ function MainContent({ initialSlots, initialActivities }: ClientRackPageProps) {
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
   const [isBragModalOpen, setIsBragModalOpen] = useState(false);
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+  const [legalModalTab, setLegalModalTab] = useState<LegalTab>("terms");
   const [bragSlotId, setBragSlotId] = useState<number>(1);
   const [isInfoPanelVisible, setIsInfoPanelVisible] = useState(true);
+
+  const handleOpenLegal = (tab: LegalTab) => {
+    setLegalModalTab(tab);
+    setIsLegalModalOpen(true);
+  };
 
   // Check URL params for post-checkout redirection (?payment=success&slot=X)
   useEffect(() => {
@@ -171,17 +179,25 @@ function MainContent({ initialSlots, initialActivities }: ClientRackPageProps) {
       <HowItWorksModal
         isOpen={isHowItWorksOpen}
         onClose={() => setIsHowItWorksOpen(false)}
+        onOpenLegal={handleOpenLegal}
+      />
+
+      {/* Legal & Compliance Popup Modal */}
+      <LegalModal
+        isOpen={isLegalModalOpen}
+        initialTab={legalModalTab}
+        onClose={() => setIsLegalModalOpen(false)}
       />
 
       {/* Bottom Compliance & Legal Links */}
       <footer className="fixed bottom-3 right-4 z-20 flex items-center gap-2 sm:gap-3 px-3 py-1.5 rounded-full bg-zinc-950/85 backdrop-blur-md border border-zinc-800/80 text-[10px] font-mono text-zinc-400">
-        <a href="/terms" className="hover:text-cyan-400 transition-colors">Terms</a>
+        <button onClick={() => handleOpenLegal("terms")} className="hover:text-cyan-400 transition-colors cursor-pointer">Terms</button>
         <span>•</span>
-        <a href="/privacy" className="hover:text-cyan-400 transition-colors">Privacy</a>
+        <button onClick={() => handleOpenLegal("privacy")} className="hover:text-cyan-400 transition-colors cursor-pointer">Privacy</button>
         <span>•</span>
-        <a href="/refund" className="hover:text-cyan-400 transition-colors">Refunds</a>
+        <button onClick={() => handleOpenLegal("refund")} className="hover:text-cyan-400 transition-colors cursor-pointer">Refunds</button>
         <span>•</span>
-        <a href="/contact" className="hover:text-cyan-400 transition-colors">Contact</a>
+        <button onClick={() => handleOpenLegal("contact")} className="hover:text-cyan-400 transition-colors cursor-pointer">Contact</button>
       </footer>
     </main>
   );
