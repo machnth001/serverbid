@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #07070a;
+    --foreground: #f3f4f6;
+    --card: #0e0e16;
+    --card-foreground: #f3f4f6;
+    --popover: #0e0e16;
+    --popover-foreground: #f3f4f6;
+    --primary: #00d4ff;
+    --primary-foreground: #000000;
+    --secondary: #141420;
+    --secondary-foreground: #e5e7eb;
+    --muted: #1a1a28;
+    --muted-foreground: #9ca3af;
+    --accent: #ffd700;
+    --accent-foreground: #000000;
+    --destructive: #ff0055;
+    --destructive-foreground: #ffffff;
+    --border: #1e1e30;
+    --input: #1a1a28;
+    --ring: #00d4ff;
+    --radius: 0.75rem;
+
+    --neon-green: #00ff66;
+    --neon-cyan: #00d4ff;
+    --neon-gold: #ffd700;
+    --neon-red: #ff0055;
+    --steel-frame: #11111a;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #07070a;
+  color: #f3f4f6;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* Glassmorphic Cyberpunk Panels */
+.cyber-panel {
+  background: rgba(14, 14, 22, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 212, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6), inset 0 0 12px rgba(0, 212, 255, 0.05);
+}
+
+.cyber-panel-gold {
+  background: rgba(18, 16, 10, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(255, 215, 0, 0.08);
+}
+
+.cyber-panel-red {
+  background: rgba(22, 10, 14, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 0, 85, 0.4);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(255, 0, 85, 0.1);
+}
+
+/* Glowing Neon Text and Borders */
+.glow-cyan {
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.7), 0 0 20px rgba(0, 212, 255, 0.4);
+}
+
+.glow-green {
+  text-shadow: 0 0 10px rgba(0, 255, 102, 0.7), 0 0 20px rgba(0, 255, 102, 0.4);
+}
+
+.glow-gold {
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 25px rgba(255, 215, 0, 0.5);
+}
+
+.glow-red {
+  text-shadow: 0 0 10px rgba(255, 0, 85, 0.8), 0 0 25px rgba(255, 0, 85, 0.5);
+}
+
+.box-glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+}
+
+.box-glow-gold {
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.45);
+}
+
+.box-glow-red {
+  box-shadow: 0 0 25px rgba(255, 0, 85, 0.55);
+}
+
+/* Industrial Grid & Scanline FX */
+.scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.3) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+
+.grid-bg {
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Marquee Scrolling Animation */
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 28s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Blinking and Pulsing Status LEDs */
+@keyframes led-blink {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.92); }
+}
+
+.animate-led {
+  animation: led-blink 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse-fast {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.15; }
+}
+
+.animate-pulse-fast {
+  animation: pulse-fast 0.6s ease-in-out infinite;
+}
+
+/* Custom Cyber Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #09090e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e1e30;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00d4ff;
+}
