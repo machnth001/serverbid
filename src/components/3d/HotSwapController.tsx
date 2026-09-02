@@ -25,11 +25,9 @@ export function HotSwapController({
   onSlotHover,
   onFocusPositionChange,
 }: HotSwapControllerProps) {
-  const { playSlide, playChunk, playAlarm } = useAudio();
+  const { playSlide } = useAudio();
 
-  const [ejections, setEjections] = useState<Record<number, number>>({});
   const [sparkSlot, setSparkSlot] = useState<number | null>(null);
-  const activeTimeline = useRef<gsap.core.Timeline | null>(null);
 
   // Play mechanical sliding sound when selecting a server blade
   const prevSelectedRef = useRef<number | null>(selectedSlotId);
@@ -72,70 +70,23 @@ export function HotSwapController({
     }
   }, [activeHotSwap, selectedSlotId, slotPositions, onFocusPositionChange]);
 
-  // Execute fast, punchy, ultra-smooth Hot-Swap animation sequence
+  // Execute clean, punchy mechanical sound & focus on live swap
   useEffect(() => {
     if (!activeHotSwap) return;
 
     const targetSlotId = activeHotSwap.slot_id;
-    const tracker = { z: 0 };
+    playSlide();
 
-    // Kill any previous running timeline to avoid collisions
-    if (activeTimeline.current) {
-      activeTimeline.current.kill();
-    }
-
-    // 1. Play Outbid Alarm sound
-    playAlarm();
-
-    // 2. High-speed, ultra-smooth mechanical ejection & insertion timeline (~0.8s total)
-    const tl = gsap.timeline({
-      onComplete: () => {
-        setEjections((prev) => ({ ...prev, [targetSlotId]: 0 }));
-        setSparkSlot(null);
-      },
-    });
-
-    activeTimeline.current = tl;
-
-    // Fast mechanical ejection slide out (+1.8 units)
-    tl.to(tracker, {
-      z: 1.8,
-      duration: 0.22,
-      ease: "power2.out",
-      onStart: () => {
-        playSlide();
-      },
-      onUpdate: () => {
-        setEjections((prev) => ({ ...prev, [targetSlotId]: tracker.z }));
-      },
-    });
-
-    // Rapid mid-air swap pause
-    tl.to({}, { duration: 0.08 });
-
-    // Smooth mechanical insertion back into chassis (0.22s)
-    tl.to(tracker, {
-      z: 0,
-      duration: 0.22,
-      ease: "power2.inOut",
-      onUpdate: () => {
-        setEjections((prev) => ({ ...prev, [targetSlotId]: tracker.z }));
-      },
-      onComplete: () => {
-        // Heavy mechanical locking CHUNK!
-        playChunk();
-        // Trigger spark burst
-        setSparkSlot(targetSlotId);
-      },
-    });
-
-    // Hold spark burst briefly (0.2s)
-    tl.to({}, { duration: 0.2 });
+    // Subtle spark burst highlight at the swapped slot
+    setSparkSlot(targetSlotId);
+    const timer = setTimeout(() => {
+      setSparkSlot(null);
+    }, 400);
 
     return () => {
-      tl.kill();
+      clearTimeout(timer);
     };
-  }, [activeHotSwap, playAlarm, playSlide, playChunk]);
+  }, [activeHotSwap, playSlide]);
 
   return (
     <group>
@@ -143,10 +94,8 @@ export function HotSwapController({
         const pos = slotPositions[slot.id] || [0, 0, 0];
         const isSelected = selectedSlotId === slot.id;
         const isHotSwapping = activeHotSwap?.slot_id === slot.id;
-        const baseEjection = ejections[slot.id] || 0;
-        // Very subtle, sleek tactile protrusion on selection (~0.14 units)
-        const selectionOffset = isSelected ? 0.14 : 0;
-        const totalEjectionZ = baseEjection + selectionOffset;
+        // Subtle tactile protrusion on selection (~0.14 units)
+        const totalEjectionZ = isSelected ? 0.14 : 0;
 
         if (slot.id === 1) {
           return (

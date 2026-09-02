@@ -38,16 +38,26 @@ export function useRealtimeSlots(
   const [selectedSlotId, setSelectedSlotId] = useState<number | null>(1);
   const isProcessingQueue = useRef(false);
 
-  // Trigger hot swap sequence for slot
+  // Trigger instant slot swap sequence
   const triggerHotSwap = useCallback(
     (slotId: number, newSlot: Slot, previousHolder = null) => {
+      // 1. Immediately update slots state with the new slot data!
+      setSlots((prevSlots) => {
+        const next = prevSlots.map((s) =>
+          s.id === newSlot.id ? newSlot : s
+        );
+        return next.sort((a, b) => a.id - b.id);
+      });
+
+      setSelectedSlotId(slotId);
+
       const event: HotSwapEvent = {
         slot_id: slotId,
         new_slot: newSlot,
         previous_holder: previousHolder,
       };
 
-      setHotSwapQueue((prev) => [...prev, event]);
+      setActiveHotSwap(event);
 
       // Add to activity ticker
       if (newSlot.current_holder) {
@@ -62,36 +72,14 @@ export function useRealtimeSlots(
         };
         setActivities((prev) => [newAct, ...prev.slice(0, 29)]);
       }
+
+      // Reset active hot swap flag after a brief smooth transition
+      setTimeout(() => {
+        setActiveHotSwap(null);
+      }, 400);
     },
     []
   );
-
-  // Queue consumer for sequential 3D hot-swap animations
-  useEffect(() => {
-    if (hotSwapQueue.length > 0 && !activeHotSwap && !isProcessingQueue.current) {
-      isProcessingQueue.current = true;
-      const nextEvent = hotSwapQueue[0];
-      setHotSwapQueue((prev) => prev.slice(1));
-      setActiveHotSwap(nextEvent);
-
-      setSelectedSlotId(nextEvent.slot_id);
-
-      // Dynamic adaptive duration: 800ms standard, 500ms if queue has multiple bids
-      const duration = hotSwapQueue.length > 0 ? 500 : 800;
-
-      const timer = setTimeout(() => {
-        setSlots((prevSlots) =>
-          prevSlots.map((s) =>
-            s.id === nextEvent.slot_id ? nextEvent.new_slot : s
-          )
-        );
-        setActiveHotSwap(null);
-        isProcessingQueue.current = false;
-      }, duration);
-
-      return () => clearTimeout(timer);
-    }
-  }, [hotSwapQueue, activeHotSwap]);
 
   // Connect to Supabase Realtime & Fetch Initial Data from Database
   useEffect(() => {
