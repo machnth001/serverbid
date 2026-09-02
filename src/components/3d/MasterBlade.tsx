@@ -281,8 +281,17 @@ export function MasterBlade({
     };
   }, [slot, isHotSwapping]);
 
-  // High-RPM Fan spinning in useFrame
+  // High-RPM Fan spinning & smooth slide-out damping in useFrame
   useFrame((_, delta) => {
+    if (meshRef.current) {
+      const targetZ = position[2] + ejectionZ;
+      meshRef.current.position.z = THREE.MathUtils.damp(
+        meshRef.current.position.z,
+        targetZ,
+        12,
+        delta
+      );
+    }
     if (fan1Ref.current) {
       fan1Ref.current.rotation.z += delta * (isHotSwapping ? 30 : 18);
     }
@@ -294,7 +303,7 @@ export function MasterBlade({
   return (
     <group
       ref={meshRef}
-      position={[position[0], position[1], position[2] + ejectionZ]}
+      position={[position[0], position[1], position[2]]}
       onClick={(e) => {
         e.stopPropagation();
         onClick(slot.id);

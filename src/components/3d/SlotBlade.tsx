@@ -268,9 +268,18 @@ export function SlotBlade({
     };
   }, [slot, isHotSwapping, isSelected]);
 
-  // LED blink animation
+  // LED blink animation & smooth mechanical slide damping
   const ledRef = useRef<THREE.Mesh>(null);
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, delta) => {
+    if (meshRef.current) {
+      const targetZ = position[2] + ejectionZ;
+      meshRef.current.position.z = THREE.MathUtils.damp(
+        meshRef.current.position.z,
+        targetZ,
+        12,
+        delta
+      );
+    }
     if (!ledRef.current) return;
     const t = clock.getElapsedTime();
     if (isHotSwapping) {
@@ -293,7 +302,7 @@ export function SlotBlade({
   return (
     <group
       ref={meshRef}
-      position={[position[0], position[1], position[2] + ejectionZ]}
+      position={[position[0], position[1], position[2]]}
       onClick={(e) => {
         e.stopPropagation();
         onClick(slot.id);
