@@ -70,7 +70,7 @@ export function SlotBlade({
       }
 
       // ---------------------------------------------------------
-      // 1. LEFT COLUMN: POSITION / SLOT NUMBER BADGE
+      // 1. LEFT COLUMN: POSITION / RANK BADGE (Without 'SLOT' label)
       // ---------------------------------------------------------
       const badgeX = 45;
       const badgeWidth = 220;
@@ -83,21 +83,21 @@ export function SlotBlade({
       ctx.fill();
       ctx.stroke();
 
-      // Text: SLOT
+      // Top Tag: NODE
       ctx.fillStyle = isMaster ? "#ffd700" : "#00d4ff";
-      ctx.font = "bold 28px monospace";
+      ctx.font = "bold 26px monospace";
       ctx.textAlign = "center";
-      ctx.fillText(isMaster ? "MASTER" : "SLOT", badgeX + badgeWidth / 2, 95);
+      ctx.fillText(isMaster ? "MASTER" : "NODE", badgeX + badgeWidth / 2, 85);
 
       // Text: #02
       ctx.fillStyle = "#ffffff";
-      ctx.font = "900 96px sans-serif";
-      ctx.fillText(formatSlotId(slot.id), badgeX + badgeWidth / 2, 220);
+      ctx.font = "900 100px sans-serif";
+      ctx.fillText(formatSlotId(slot.id), badgeX + badgeWidth / 2, 205);
 
       // Text: 2U TIER
       ctx.fillStyle = "#9ca3af";
       ctx.font = "bold 22px monospace";
-      ctx.fillText("2U BLADE", badgeX + badgeWidth / 2, 295);
+      ctx.fillText("2U BLADE", badgeX + badgeWidth / 2, 285);
 
       // ---------------------------------------------------------
       // 2. CENTER COLUMN: BRAND DETAILS WITH STARTUP LOGO
@@ -165,13 +165,13 @@ export function SlotBlade({
         const textX = logoX + logoSize + 40;
         ctx.textAlign = "left";
 
-        // Top Tag
+        // Top Status Tag (Removed 'ACTIVE TENANT')
         ctx.fillStyle = isHotSwapping ? "#ff0055" : "#00ff66";
         ctx.font = "bold 24px monospace";
         ctx.fillText(
           isHotSwapping
             ? "● HOT-SWAP TAKEOVER IN PROGRESS..."
-            : "● ACTIVE TENANT // 100% HEALTH",
+            : "● ONLINE // 100% HEALTH",
           textX,
           105
         );
@@ -188,11 +188,11 @@ export function SlotBlade({
         ctx.font = "bold 44px monospace";
         ctx.fillText(`@${holder.handle.replace(/^@/, "")}`, textX, 275);
       } else {
-        // Vacant Slot State
+        // Vacant Blade State
         ctx.textAlign = "left";
         ctx.fillStyle = "#6b7280";
         ctx.font = "bold 60px sans-serif";
-        ctx.fillText("VACANT BLADE SLOT", brandX + 50, 175);
+        ctx.fillText("VACANT BLADE", brandX + 50, 175);
 
         ctx.fillStyle = "#00d4ff";
         ctx.font = "bold 34px monospace";
@@ -218,18 +218,26 @@ export function SlotBlade({
 
       // Valuation Header
       ctx.fillStyle = "#9ca3af";
-      ctx.font = "bold 24px monospace";
-      ctx.fillText("VALUATION", valCenterX, 95);
+      ctx.font = "bold 22px monospace";
+      ctx.fillText("VALUATION", valCenterX, 82);
 
       // Valuation Amount
       ctx.fillStyle = isMaster ? "#ffd700" : "#00ff66";
-      ctx.font = "900 84px sans-serif";
-      ctx.fillText(formatBid(slot.current_bid), valCenterX, 205);
+      ctx.font = "900 88px sans-serif";
+      ctx.fillText(formatBid(slot.current_bid), valCenterX, 180);
 
-      // Minimum Outbid Step
-      ctx.fillStyle = "#9ca3af";
-      ctx.font = "24px monospace";
-      ctx.fillText("MIN OUTBID: +$1.00", valCenterX, 285);
+      // Prominent Large Min Outbid Pill
+      ctx.fillStyle = "rgba(0, 212, 255, 0.18)";
+      ctx.strokeStyle = isMaster ? "#ffd700" : "#00d4ff";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.roundRect(valX + 25, 230, valWidth - 50, 68, 14);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = isMaster ? "#ffd700" : "#00d4ff";
+      ctx.font = "900 36px monospace";
+      ctx.fillText("MIN OUTBID: +$1.00", valCenterX, 278);
 
       // Outer perimeter neon border
       ctx.strokeStyle = isMaster ? "#ffd700" : "rgba(0, 212, 255, 0.4)";

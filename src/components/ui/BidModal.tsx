@@ -229,8 +229,15 @@ export function BidModal({ slot, isOpen, onClose }: BidModalProps) {
                 <label className="text-xs font-mono text-zinc-300 uppercase tracking-wider font-semibold">
                   Your Bid Valuation (USD)
                 </label>
-                <span className="text-xs font-mono text-cyan-400 font-bold">
-                  Minimum: {formatBid(minBid)}
+                <span
+                  className={`text-xs font-mono font-black px-2.5 py-1 rounded-lg border flex items-center gap-1 shadow-md ${
+                    isMaster
+                      ? "bg-amber-500/15 border-amber-500/50 text-amber-300"
+                      : "bg-cyan-500/15 border-cyan-500/50 text-cyan-300"
+                  }`}
+                >
+                  <Zap className="w-3 h-3 shrink-0" />
+                  MIN OUTBID: {formatBid(minBid)}
                 </span>
               </div>
 

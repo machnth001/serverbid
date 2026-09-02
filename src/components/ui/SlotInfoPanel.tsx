@@ -82,12 +82,12 @@ export function SlotInfoPanel({ slot, onClose, onBidClick }: SlotInfoPanelProps)
           </div>
         )}
 
-        {/* 2. CURRENT TENANT / COMPANY DETAILS */}
+        {/* 2. COMPANY DETAILS */}
         <div className="p-4 sm:p-4.5 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 flex flex-col gap-3">
           <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-zinc-400">
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 text-zinc-300 font-bold">
               <Flame className="w-3.5 h-3.5 text-amber-400" />
-              CURRENT TENANT
+              {hasHolder ? "ONLINE NODE" : "AVAILABLE"}
             </span>
             <span className="flex items-center gap-1 text-emerald-400 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -146,7 +146,7 @@ export function SlotInfoPanel({ slot, onClose, onBidClick }: SlotInfoPanelProps)
             </div>
           ) : (
             <div className="py-3 px-2 text-center flex flex-col gap-1">
-              <p className="font-mono text-xs text-zinc-400">This slot is currently vacant.</p>
+              <p className="font-mono text-xs text-zinc-400">This node is currently vacant.</p>
               <p className="text-xs font-bold text-cyan-400">
                 Be the first to claim real estate!
               </p>
@@ -172,14 +172,14 @@ export function SlotInfoPanel({ slot, onClose, onBidClick }: SlotInfoPanelProps)
           </p>
         </div>
 
-        {/* 4. VALUATION & NEXT MIN OUTBID */}
+        {/* 4. VALUATION & NEXT MIN OUTBID (ENLARGED) */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 flex flex-col gap-1">
+          <div className="p-4 rounded-2xl bg-zinc-950/90 border border-zinc-800/90 flex flex-col justify-between gap-1">
             <span className="block text-[10px] font-mono uppercase tracking-wider text-zinc-400 truncate">
               Active Valuation
             </span>
             <span
-              className={`block font-mono text-base sm:text-lg font-black truncate ${
+              className={`block font-mono text-lg sm:text-xl font-black truncate ${
                 isMaster ? "text-amber-400 glow-gold" : "text-emerald-400 glow-green"
               }`}
             >
@@ -187,11 +187,27 @@ export function SlotInfoPanel({ slot, onClose, onBidClick }: SlotInfoPanelProps)
             </span>
           </div>
 
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 flex flex-col gap-1">
-            <span className="block text-[10px] font-mono uppercase tracking-wider text-zinc-400 truncate">
-              Next Min Outbid
-            </span>
-            <span className="block font-mono text-base sm:text-lg font-black text-cyan-400 glow-cyan truncate">
+          <div
+            className={`p-4 rounded-2xl border flex flex-col justify-between gap-1 shadow-lg transition-all ${
+              isMaster
+                ? "bg-amber-500/10 border-amber-500/50 shadow-amber-500/10"
+                : "bg-cyan-500/10 border-cyan-500/50 shadow-cyan-500/10"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span
+                className={`block text-[11px] font-mono uppercase tracking-wider font-black truncate ${
+                  isMaster ? "text-amber-300" : "text-cyan-300"
+                }`}
+              >
+                MIN OUTBID
+              </span>
+            </div>
+            <span
+              className={`block font-mono text-xl sm:text-2xl font-black truncate ${
+                isMaster ? "text-amber-400 glow-gold" : "text-cyan-400 glow-cyan"
+              }`}
+            >
               {formatBid(minBid)}
             </span>
           </div>

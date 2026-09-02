@@ -183,7 +183,7 @@ export function MasterBlade({
         ctx.fillText(
           isHotSwapping
             ? "⚡ HOT-SWAP TAKEOVER IN PROGRESS..."
-            : "● 12x TITAN ACCELERATORS // 100% HEALTH",
+            : "● ONLINE // 100% HEALTH",
           textX,
           455
         );
@@ -217,15 +217,24 @@ export function MasterBlade({
 
       ctx.fillStyle = "#ffd700";
       ctx.font = "bold 26px monospace";
-      ctx.fillText("CURRENT VALUATION", valCenterX, 185);
+      ctx.fillText("CURRENT VALUATION", valCenterX, 175);
 
       ctx.fillStyle = "#ffffff";
-      ctx.font = "900 92px sans-serif";
-      ctx.fillText(formatBid(slot.current_bid), valCenterX, 320);
+      ctx.font = "900 96px sans-serif";
+      ctx.fillText(formatBid(slot.current_bid), valCenterX, 295);
 
-      ctx.fillStyle = "#9ca3af";
-      ctx.font = "26px monospace";
-      ctx.fillText("MIN OUTBID: +$2.00", valCenterX, 440);
+      // Prominent Large Min Outbid Pill
+      ctx.fillStyle = "rgba(255, 215, 0, 0.2)";
+      ctx.strokeStyle = "#ffd700";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(valX + 30, 370, valWidth - 60, 80, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = "#ffd700";
+      ctx.font = "900 38px monospace";
+      ctx.fillText("MIN OUTBID: +$2.00", valCenterX, 424);
 
       // ---------------------------------------------------------
       // BOTTOM FAN & INTAKE GRILLE
