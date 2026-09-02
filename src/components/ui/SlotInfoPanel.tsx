@@ -87,7 +87,7 @@ export function SlotInfoPanel({ slot, onClose, onBidClick }: SlotInfoPanelProps)
           <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-zinc-400">
             <span className="flex items-center gap-1.5 text-zinc-300 font-bold">
               <Flame className="w-3.5 h-3.5 text-amber-400" />
-              {hasHolder ? "ONLINE NODE" : "AVAILABLE"}
+              {hasHolder ? "ACTIVE" : "AVAILABLE"}
             </span>
             <span className="flex items-center gap-1 text-emerald-400 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -146,7 +146,7 @@ export function SlotInfoPanel({ slot, onClose, onBidClick }: SlotInfoPanelProps)
             </div>
           ) : (
             <div className="py-3 px-2 text-center flex flex-col gap-1">
-              <p className="font-mono text-xs text-zinc-400">This node is currently vacant.</p>
+              <p className="font-mono text-xs text-zinc-400">Currently vacant.</p>
               <p className="text-xs font-bold text-cyan-400">
                 Be the first to claim real estate!
               </p>
