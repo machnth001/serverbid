@@ -32,6 +32,11 @@ export const metadata: Metadata = {
       "12 finite slots. Hot-swap advertising for tech founders. Try to pull my plug!",
     images: ["/api/og?slot=01&company=MASTER+NODE&bid=250.00"],
   },
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
