@@ -129,6 +129,10 @@ export function BidModal({ slot, isOpen, onClose }: BidModalProps) {
       setError(`Minimum bid for this slot is ${formatBid(minBid)}`);
       return;
     }
+    if (!Number.isInteger(amount) || amount <= 0) {
+      setError("Please enter a whole dollar amount (decimals are not permitted).");
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -247,17 +251,30 @@ export function BidModal({ slot, isOpen, onClose }: BidModalProps) {
                 </span>
                 <input
                   type="number"
-                  step="0.50"
-                  min={minBid}
-                  value={amount}
-                  onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
+                  step="1"
+                  min={Math.ceil(minBid)}
+                  value={amount || ""}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    setAmount(isNaN(val) ? 0 : Math.max(0, val));
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "." || e.key === "," || e.key === "e" || e.key === "-") {
+                      e.preventDefault();
+                    }
+                  }}
                   className="w-full pl-11 pr-4 py-3 bg-zinc-900/90 border border-zinc-700/80 rounded-xl text-white font-mono text-xl font-black focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40 transition-colors"
                 />
               </div>
 
-              {/* Quick Increment Chips */}
+              {/* Quick Increment Chips (Whole Dollar Amounts) */}
               <div className="flex flex-wrap items-center gap-2 pt-1">
-                {[minBid, minBid + 5, minBid + 15, minBid + 50].map((quick) => (
+                {[
+                  Math.ceil(minBid),
+                  Math.ceil(minBid) + 5,
+                  Math.ceil(minBid) + 15,
+                  Math.ceil(minBid) + 50,
+                ].map((quick) => (
                   <button
                     key={quick}
                     type="button"
@@ -268,7 +285,7 @@ export function BidModal({ slot, isOpen, onClose }: BidModalProps) {
                         : "bg-zinc-800/90 text-zinc-300 hover:bg-zinc-700"
                     }`}
                   >
-                    ${quick.toFixed(0)}
+                    ${quick}
                   </button>
                 ))}
               </div>

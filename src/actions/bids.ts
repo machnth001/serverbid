@@ -331,6 +331,14 @@ export async function validateBidAmount(
   const slot = data as Slot;
   const minimumBid = getMinimumBid(slot);
 
+  if (!Number.isInteger(amount) || amount <= 0) {
+    return {
+      valid: false,
+      minimumBid,
+      error: "Bid amount must be a whole dollar integer (decimals are not permitted).",
+    };
+  }
+
   if (amount < minimumBid) {
     return {
       valid: false,
