@@ -11,6 +11,7 @@ import {
   Crown,
   Sparkles,
   Flame,
+  Server,
 } from "lucide-react";
 import { Slot, formatBid, formatSlotId, getMinimumBid } from "@/types";
 import { AntiSnipeTimer } from "./AntiSnipeTimer";
@@ -95,27 +96,40 @@ export function SlotInfoPanel({ slot, onClose, onBidClick }: SlotInfoPanelProps)
             </span>
           </div>
 
-          {hasHolder ? (
-            <div className="flex flex-col gap-3 pt-0.5">
-              {/* Logo + Company Name + Twitter */}
-              <div className="flex items-center gap-3">
-                {holder.logo_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={holder.logo_url}
-                    alt={holder.name}
-                    className="w-12 h-12 rounded-xl object-cover border border-zinc-700 bg-zinc-900 shadow-md shrink-0"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700 flex items-center justify-center font-black text-cyan-400 text-base font-mono shrink-0 shadow-md">
-                    {holder.name.slice(0, 2).toUpperCase()}
-                  </div>
-                )}
+          <div className="flex flex-col gap-3 pt-0.5">
+            {/* Logo + Company Name + Twitter */}
+            <div className="flex items-center gap-3">
+              {hasHolder && holder.logo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={holder.logo_url}
+                  alt={holder.name}
+                  className="w-12 h-12 rounded-xl object-cover border border-zinc-700 bg-zinc-900 shadow-md shrink-0"
+                />
+              ) : hasHolder ? (
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700 flex items-center justify-center font-black text-cyan-400 text-base font-mono shrink-0 shadow-md">
+                  {holder.name.slice(0, 2).toUpperCase()}
+                </div>
+              ) : (
+                /* Default Cyber Server Logo Placeholder */
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 via-zinc-900 to-indigo-500/20 border border-cyan-500/40 flex items-center justify-center font-black text-cyan-300 text-base font-mono shrink-0 shadow-lg shadow-cyan-500/10 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-transparent" />
+                  <Server className="w-6 h-6 text-cyan-400" />
+                </div>
+              )}
 
-                <div className="overflow-hidden flex flex-col gap-0.5">
+              <div className="overflow-hidden flex flex-col gap-0.5">
+                <div className="flex items-center gap-2">
                   <h3 className="font-black text-white text-sm sm:text-base leading-tight truncate">
-                    {holder.name}
+                    {hasHolder ? holder.name : "Your Company"}
                   </h3>
+                  {!hasHolder && (
+                    <span className="px-1.5 py-0.2 text-[9px] font-mono font-bold uppercase tracking-wider bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 rounded">
+                      Preview
+                    </span>
+                  )}
+                </div>
+                {hasHolder ? (
                   <a
                     href={`https://twitter.com/${holder.handle.replace(/^@/, "")}`}
                     target="_blank"
@@ -125,33 +139,39 @@ export function SlotInfoPanel({ slot, onClose, onBidClick }: SlotInfoPanelProps)
                     <AtSign className="w-3 h-3 text-cyan-400 shrink-0" />
                     <span className="truncate">{holder.handle.replace(/^@/, "")}</span>
                   </a>
-                </div>
+                ) : (
+                  <div className="inline-flex items-center gap-1 font-mono text-[11px] text-cyan-400/80 font-semibold truncate">
+                    <AtSign className="w-3 h-3 text-cyan-400 shrink-0" />
+                    <span className="truncate">yourname</span>
+                  </div>
+                )}
               </div>
+            </div>
 
-              {/* Website Link */}
-              {holder.company_url && (
-                <a
-                  href={holder.company_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between px-3 py-2 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800/80 text-[11px] font-mono text-zinc-200 hover:text-cyan-300 transition-colors group"
-                >
-                  <span className="flex items-center gap-2 truncate">
-                    <Globe className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                    <span className="truncate">{holder.company_url}</span>
-                  </span>
-                  <ExternalLink className="w-3.5 h-3.5 shrink-0 ml-2 group-hover:translate-x-0.5 transition-transform text-zinc-400 group-hover:text-cyan-300" />
-                </a>
-              )}
-            </div>
-          ) : (
-            <div className="py-3 px-2 text-center flex flex-col gap-1">
-              <p className="font-mono text-xs text-zinc-400">This slot is currently vacant.</p>
-              <p className="text-xs font-bold text-cyan-400">
-                Be the first to claim real estate!
-              </p>
-            </div>
-          )}
+            {/* Website Link */}
+            {hasHolder && holder.company_url ? (
+              <a
+                href={holder.company_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between px-3 py-2 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800/80 text-[11px] font-mono text-zinc-200 hover:text-cyan-300 transition-colors group"
+              >
+                <span className="flex items-center gap-2 truncate">
+                  <Globe className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span className="truncate">{holder.company_url}</span>
+                </span>
+                <ExternalLink className="w-3.5 h-3.5 shrink-0 ml-2 group-hover:translate-x-0.5 transition-transform text-zinc-400 group-hover:text-cyan-300" />
+              </a>
+            ) : (
+              <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-zinc-900/90 border border-zinc-800/80 text-[11px] font-mono text-zinc-400">
+                <span className="flex items-center gap-2 truncate">
+                  <Globe className="w-3.5 h-3.5 text-emerald-400/70 shrink-0" />
+                  <span className="truncate">https://yourcompany.com</span>
+                </span>
+                <ExternalLink className="w-3.5 h-3.5 shrink-0 ml-2 text-zinc-600" />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 3. STARTUP DESCRIPTION */}
@@ -168,7 +188,7 @@ export function SlotInfoPanel({ slot, onClose, onBidClick }: SlotInfoPanelProps)
               ? holder.description
               : hasHolder
               ? "Accelerating the tech frontier with high-performance infrastructure and developer tooling."
-              : "Claim this finite 3D slot to broadcast your startup pitch directly to the global tech community on X."}
+              : "Claim this server slot to broadcast your startup pitch, product launch, and logo to founders, investors, and developers worldwide."}
           </p>
         </div>
 
