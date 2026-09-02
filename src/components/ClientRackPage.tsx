@@ -108,7 +108,10 @@ function MainContent({ initialSlots, initialActivities }: ClientRackPageProps) {
             if (data.success) {
               console.log(`[Checkout Verify] Slot #${slotNum} claimed successfully!`, data);
               if (data.slot) {
-                triggerHotSwap(slotNum, data.slot);
+                const finalWonSlotId = data.slot.id || slotNum;
+                setBragSlotId(finalWonSlotId);
+                setSelectedSlotId(finalWonSlotId);
+                triggerHotSwap(finalWonSlotId, data.slot);
               }
               refetchSlots();
             } else {

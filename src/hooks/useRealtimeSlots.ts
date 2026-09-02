@@ -147,7 +147,22 @@ export function useRealtimeSlots(
         (payload) => {
           const updatedSlot = payload.new as Slot;
           const oldSlot = payload.old as Slot;
-          triggerHotSwap(updatedSlot.id, updatedSlot, oldSlot?.current_holder as null);
+
+          setSlots((prevSlots) => {
+            const next = prevSlots.map((s) =>
+              s.id === updatedSlot.id ? updatedSlot : s
+            );
+            return next.sort((a, b) => a.id - b.id);
+          });
+
+          // Trigger hot swap animation for the slot that received the new hot bid
+          if (updatedSlot.status === "hot") {
+            triggerHotSwap(
+              updatedSlot.id,
+              updatedSlot,
+              oldSlot?.current_holder as null
+            );
+          }
         }
       )
       .on(
@@ -191,41 +206,158 @@ export function useRealtimeSlots(
     }
   }, []);
 
-  // Outbid simulation helper for testing
+  // Outbid simulation helper for testing (cascades descending across 12 slots)
   const simulateOutbid = useCallback(
-    (slotId: number, customBidder?: { name: string; handle: string; logo_url: string; company_url: string; description?: string }) => {
+    (
+      slotId: number,
+      customBidder?: {
+        name: string;
+        handle: string;
+        logo_url: string;
+        company_url: string;
+        description?: string;
+      }
+    ) => {
       const current = slots.find((s) => s.id === slotId) || slots[0];
       const step = current.tier === "master" ? 25 : 15;
       const newBidAmount = (current.current_bid || 0) + step;
 
       const randomNames = [
-        { name: "Supermaven AI", handle: "supermaven", url: "https://supermaven.com", desc: "The fastest generative code completion engine in the world." },
-        { name: "Cursor IDE", handle: "cursor_ai", url: "https://cursor.sh", desc: "AI-first code editor built for engineers to build software 10x faster." },
-        { name: "v0.dev", handle: "v0", url: "https://v0.dev", desc: "Generative UI system by Vercel for building React components with AI." },
-        { name: "Vercel", handle: "vercel", url: "https://vercel.com", desc: "The Frontend Cloud platform empowering developers to build fast web apps." },
-        { name: "Linear", handle: "linear", url: "https://linear.app", desc: "The purpose-built tool for modern software teams and issue tracking." },
-        { name: "Supabase", handle: "supabase", url: "https://supabase.com", desc: "The open source Firebase alternative with Postgres and Realtime." },
+        {
+          name: "Supermaven AI",
+          handle: "supermaven",
+          url: "https://supermaven.com",
+          desc: "The fastest generative code completion engine in the world.",
+        },
+        {
+          name: "Cursor IDE",
+          handle: "cursor_ai",
+          url: "https://cursor.sh",
+          desc: "AI-first code editor built for engineers to build software 10x faster.",
+        },
+        {
+          name: "v0.dev",
+          handle: "v0",
+          url: "https://v0.dev",
+          desc: "Generative UI system by Vercel for building React components with AI.",
+        },
+        {
+          name: "Vercel",
+          handle: "vercel",
+          url: "https://vercel.com",
+          desc: "The Frontend Cloud platform empowering developers to build fast web apps.",
+        },
+        {
+          name: "Linear",
+          handle: "linear",
+          url: "https://linear.app",
+          desc: "The purpose-built tool for modern software teams and issue tracking.",
+        },
+        {
+          name: "Supabase",
+          handle: "supabase",
+          url: "https://supabase.com",
+          desc: "The open source Firebase alternative with Postgres and Realtime.",
+        },
       ];
 
-      const picked = customBidder || randomNames[Math.floor(Math.random() * randomNames.length)];
+      const picked =
+        customBidder ||
+        randomNames[Math.floor(Math.random() * randomNames.length)];
 
-      const updatedSlot: Slot = {
-        ...current,
-        current_bid: newBidAmount,
-        current_holder: {
-          name: picked.name,
-          handle: picked.handle,
-          logo_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80",
-          company_url: (picked as { url?: string; company_url?: string }).url || (picked as { company_url?: string }).company_url || "https://x.com",
-          description: (picked as { desc?: string; description?: string }).desc || (picked as { description?: string }).description || "Accelerating the modern web with real-time intelligence.",
-          bid_at: new Date().toISOString(),
-        },
-        status: "hot",
-        bid_deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
-        updated_at: new Date().toISOString(),
+      const cleanHandle = (h?: string) =>
+        (h || "").toLowerCase().replace(/^@/, "").trim();
+      const newCleanHandle = cleanHandle(picked.handle);
+
+      const newHolder = {
+        name: picked.name,
+        handle: newCleanHandle,
+        logo_url:
+          (picked as { logo_url?: string }).logo_url ||
+          "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80",
+        company_url:
+          (picked as { url?: string; company_url?: string }).url ||
+          (picked as { company_url?: string }).company_url ||
+          "https://x.com",
+        description:
+          (picked as { desc?: string; description?: string }).desc ||
+          (picked as { description?: string }).description ||
+          "Accelerating the modern web with real-time intelligence.",
+        bid_at: new Date().toISOString(),
       };
 
-      triggerHotSwap(slotId, updatedSlot, current.current_holder as null);
+      // Collect all active entries (excluding if same company upgrades)
+      const activeEntries = slots
+        .filter(
+          (s) =>
+            s.status !== "empty" &&
+            s.current_holder &&
+            cleanHandle(s.current_holder.handle) !== newCleanHandle
+        )
+        .map((s) => ({
+          holder: s.current_holder!,
+          amount: Number(s.current_bid),
+          bid_deadline: s.bid_deadline,
+          isNew: false,
+        }));
+
+      activeEntries.push({
+        holder: newHolder,
+        amount: newBidAmount,
+        bid_deadline: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+        isNew: true,
+      });
+
+      // Sort strictly in descending order of amount
+      activeEntries.sort((a, b) => {
+        if (b.amount !== a.amount) return b.amount - a.amount;
+        return (
+          new Date(b.holder.bid_at || 0).getTime() -
+          new Date(a.holder.bid_at || 0).getTime()
+        );
+      });
+
+      let targetAssignedId = slotId;
+      const updatedSlots: Slot[] = [];
+
+      for (let i = 0; i < 12; i++) {
+        const id = i + 1;
+        const tier: "master" | "blade" = id === 1 ? "master" : "blade";
+        const old = slots.find((s) => s.id === id);
+
+        if (i < activeEntries.length && i < 12) {
+          const entry = activeEntries[i];
+          if (entry.isNew) {
+            targetAssignedId = id;
+          }
+          updatedSlots.push({
+            id,
+            tier,
+            current_bid: entry.amount,
+            current_holder: entry.holder,
+            status: entry.isNew ? "hot" : "active",
+            bid_deadline: entry.bid_deadline,
+            created_at: old?.created_at || new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+        } else {
+          updatedSlots.push({
+            id,
+            tier,
+            current_bid: 0,
+            current_holder: null,
+            status: "empty",
+            bid_deadline: null,
+            created_at: old?.created_at || new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+        }
+      }
+
+      setSlots(updatedSlots);
+      const targetSlot =
+        updatedSlots.find((s) => s.id === targetAssignedId) || updatedSlots[0];
+      triggerHotSwap(targetAssignedId, targetSlot, current.current_holder as null);
     },
     [slots, triggerHotSwap]
   );
