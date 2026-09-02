@@ -143,8 +143,19 @@ function MainContent({ initialSlots, initialActivities }: ClientRackPageProps) {
   );
 
   const handleSlotClick = (slotId: number) => {
-    setSelectedSlotId(slotId);
-    setIsInfoPanelVisible(true);
+    if (selectedSlotId === slotId && isInfoPanelVisible) {
+      // Toggle / retract back into rack when clicking the same server blade!
+      setSelectedSlotId(null);
+      setIsInfoPanelVisible(false);
+    } else {
+      setSelectedSlotId(slotId);
+      setIsInfoPanelVisible(true);
+    }
+  };
+
+  const handleCloseInfoPanel = () => {
+    setIsInfoPanelVisible(false);
+    setSelectedSlotId(null);
   };
 
   const handleOpenBidForSlot = (slot: Slot) => {
@@ -197,7 +208,7 @@ function MainContent({ initialSlots, initialActivities }: ClientRackPageProps) {
       {isInfoPanelVisible && selectedSlot && (
         <SlotInfoPanel
           slot={selectedSlot}
-          onClose={() => setIsInfoPanelVisible(false)}
+          onClose={handleCloseInfoPanel}
           onBidClick={handleOpenBidForSlot}
         />
       )}

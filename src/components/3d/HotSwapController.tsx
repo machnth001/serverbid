@@ -29,10 +29,10 @@ export function HotSwapController({
 
   const [sparkSlot, setSparkSlot] = useState<number | null>(null);
 
-  // Play mechanical sliding sound when selecting a server blade
+  // Play mechanical sliding sound when selecting or deselecting a server blade
   const prevSelectedRef = useRef<number | null>(selectedSlotId);
   useEffect(() => {
-    if (selectedSlotId && selectedSlotId !== prevSelectedRef.current) {
+    if (selectedSlotId !== prevSelectedRef.current) {
       playSlide();
       prevSelectedRef.current = selectedSlotId;
     }
@@ -94,8 +94,8 @@ export function HotSwapController({
         const pos = slotPositions[slot.id] || [0, 0, 0];
         const isSelected = selectedSlotId === slot.id;
         const isHotSwapping = activeHotSwap?.slot_id === slot.id;
-        // Subtle tactile protrusion on selection (~0.14 units)
-        const totalEjectionZ = isSelected ? 0.14 : 0;
+        // Tactile protrusion on selection (~0.55 units, retracts to 0 on deselect)
+        const totalEjectionZ = isSelected ? 0.55 : 0;
 
         if (slot.id === 1) {
           return (
