@@ -144,8 +144,8 @@ export function HotSwapController({
         const isSelected = selectedSlotId === slot.id;
         const isHotSwapping = activeHotSwap?.slot_id === slot.id;
         const baseEjection = ejections[slot.id] || 0;
-        // Selected server blade slides out subtly (0.32 units) from the rack
-        const selectionOffset = isSelected ? 0.32 : 0;
+        // Selected server blade slides out slightly (subtle, clean tactile pop-out ~0.25 units)
+        const selectionOffset = isSelected ? 0.25 : 0;
         const totalEjectionZ = baseEjection + selectionOffset;
 
         if (slot.id === 1) {
