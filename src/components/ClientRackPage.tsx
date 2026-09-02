@@ -13,6 +13,7 @@ import { BragModal } from "@/components/ui/BragModal";
 import { HowItWorksModal } from "@/components/ui/HowItWorksModal";
 import { LegalModal, LegalTab } from "@/components/ui/LegalModal";
 import { RackScrollNavigator } from "@/components/ui/RackScrollNavigator";
+import { VisitorCounter } from "@/components/ui/VisitorCounter";
 import { Slot, ActivityEvent } from "@/types";
 
 // Dynamic import of 3D Scene with SSR disabled
@@ -240,6 +241,9 @@ function MainContent({ initialSlots, initialActivities }: ClientRackPageProps) {
         initialTab={legalModalTab}
         onClose={() => setIsLegalModalOpen(false)}
       />
+
+      {/* Bottom Left Corner: Realtime Live Visitor Counter */}
+      <VisitorCounter />
 
       {/* Bottom Compliance & Legal Links */}
       <footer className="fixed bottom-3 right-4 z-20 flex items-center gap-2 sm:gap-3 px-3 py-1.5 rounded-full bg-zinc-950/85 backdrop-blur-md border border-zinc-800/80 text-[10px] font-mono text-zinc-400">
