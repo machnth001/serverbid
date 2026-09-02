@@ -154,12 +154,12 @@ export function SlotInfoPanel({ slot, onClose, onBidClick }: SlotInfoPanelProps)
           )}
         </div>
 
-        {/* 3. STARTUP DESCRIPTION / PITCH */}
+        {/* 3. STARTUP DESCRIPTION */}
         <div className="p-4 sm:p-4.5 rounded-2xl bg-zinc-950/60 border border-zinc-800/70 flex flex-col gap-2">
           <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-zinc-400">
-            <span className="flex items-center gap-1.5 text-cyan-400">
+            <span className="flex items-center gap-1.5 text-cyan-400 font-bold">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              STARTUP PITCH & DESCRIPTION
+              STARTUP DESCRIPTION
             </span>
           </div>
 

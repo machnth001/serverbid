@@ -268,20 +268,9 @@ export function SlotBlade({
     };
   }, [slot, isHotSwapping, isSelected]);
 
-  // Smooth physical slide-out on selection & LED blink animation
+  // LED blink animation
   const ledRef = useRef<THREE.Mesh>(null);
-  useFrame(({ clock }, delta) => {
-    if (meshRef.current) {
-      const targetZ =
-        position[2] + ejectionZ + (isSelected && !isHotSwapping ? 0.7 : 0);
-      meshRef.current.position.z = THREE.MathUtils.damp(
-        meshRef.current.position.z,
-        targetZ,
-        14,
-        delta
-      );
-    }
-
+  useFrame(({ clock }) => {
     if (!ledRef.current) return;
     const t = clock.getElapsedTime();
     if (isHotSwapping) {
@@ -304,7 +293,7 @@ export function SlotBlade({
   return (
     <group
       ref={meshRef}
-      position={[position[0], position[1], position[2]]}
+      position={[position[0], position[1], position[2] + ejectionZ]}
       onClick={(e) => {
         e.stopPropagation();
         onClick(slot.id);

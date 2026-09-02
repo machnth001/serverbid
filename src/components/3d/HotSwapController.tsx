@@ -28,8 +28,41 @@ export function HotSwapController({
   const { playSlide, playChunk, playAlarm } = useAudio();
 
   const [ejections, setEjections] = useState<Record<number, number>>({});
+  const [selectionOffsets, setSelectionOffsets] = useState<Record<number, number>>({});
   const [sparkSlot, setSparkSlot] = useState<number | null>(null);
   const activeTimeline = useRef<gsap.core.Timeline | null>(null);
+  const selectionZRef = useRef<Record<number, { z: number }>>({});
+
+  // Smooth tactile slide-out when clicking / selecting a server blade
+  useEffect(() => {
+    for (let i = 1; i <= 12; i++) {
+      if (!selectionZRef.current[i]) {
+        selectionZRef.current[i] = { z: selectedSlotId === i ? 0.45 : 0 };
+      }
+    }
+
+    const tweens: gsap.core.Tween[] = [];
+
+    for (let i = 1; i <= 12; i++) {
+      const targetZ = selectedSlotId === i ? 0.45 : 0;
+      const tween = gsap.to(selectionZRef.current[i], {
+        z: targetZ,
+        duration: 0.35,
+        ease: "power2.out",
+        onUpdate: () => {
+          setSelectionOffsets((prev) => ({
+            ...prev,
+            [i]: selectionZRef.current[i].z,
+          }));
+        },
+      });
+      tweens.push(tween);
+    }
+
+    return () => {
+      tweens.forEach((t) => t.kill());
+    };
+  }, [selectedSlotId]);
 
   // Compute exact physical 3D positions for all 12 slots inside the 42U rack
   const slotPositions = useMemo(() => {
@@ -128,20 +161,16 @@ export function HotSwapController({
     };
   }, [activeHotSwap, playAlarm, playSlide, playChunk]);
 
-  const handleSlotClick = (slotId: number) => {
-    if (selectedSlotId !== slotId) {
-      playSlide();
-    }
-    onSlotClick(slotId);
-  };
-
   return (
     <group>
       {slots.map((slot) => {
         const pos = slotPositions[slot.id] || [0, 0, 0];
         const isSelected = selectedSlotId === slot.id;
         const isHotSwapping = activeHotSwap?.slot_id === slot.id;
-        const ejectionZ = ejections[slot.id] || 0;
+        const baseEjection = ejections[slot.id] || 0;
+        const selectionOffset =
+          selectionOffsets[slot.id] ?? (selectedSlotId === slot.id ? 0.45 : 0);
+        const totalEjectionZ = baseEjection + selectionOffset;
 
         if (slot.id === 1) {
           return (
@@ -151,8 +180,8 @@ export function HotSwapController({
               position={pos}
               isSelected={isSelected}
               isHotSwapping={isHotSwapping}
-              ejectionZ={ejectionZ}
-              onClick={handleSlotClick}
+              ejectionZ={totalEjectionZ}
+              onClick={onSlotClick}
               onHover={onSlotHover}
             />
           );
@@ -165,8 +194,8 @@ export function HotSwapController({
             position={pos}
             isSelected={isSelected}
             isHotSwapping={isHotSwapping}
-            ejectionZ={ejectionZ}
-            onClick={handleSlotClick}
+            ejectionZ={totalEjectionZ}
+            onClick={onSlotClick}
             onHover={onSlotHover}
           />
         );
