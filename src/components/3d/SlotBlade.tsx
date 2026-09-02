@@ -70,7 +70,7 @@ export function SlotBlade({
       }
 
       // ---------------------------------------------------------
-      // 1. LEFT COLUMN: POSITION / RANK BADGE (Clean Number Only)
+      // 1. LEFT COLUMN: POSITION / RANK BADGE (Without 'SLOT' label)
       // ---------------------------------------------------------
       const badgeX = 45;
       const badgeWidth = 220;
@@ -83,11 +83,21 @@ export function SlotBlade({
       ctx.fill();
       ctx.stroke();
 
-      // Clean Number: #02, #03, etc. Centered
+      // Top Tag: NODE
+      ctx.fillStyle = isMaster ? "#ffd700" : "#00d4ff";
+      ctx.font = "bold 26px monospace";
       ctx.textAlign = "center";
+      ctx.fillText(isMaster ? "MASTER" : "NODE", badgeX + badgeWidth / 2, 85);
+
+      // Text: #02
       ctx.fillStyle = "#ffffff";
-      ctx.font = "900 110px sans-serif";
-      ctx.fillText(formatSlotId(slot.id), badgeX + badgeWidth / 2, boxY + boxHeight / 2 + 38);
+      ctx.font = "900 100px sans-serif";
+      ctx.fillText(formatSlotId(slot.id), badgeX + badgeWidth / 2, 205);
+
+      // Text: 2U TIER
+      ctx.fillStyle = "#9ca3af";
+      ctx.font = "bold 22px monospace";
+      ctx.fillText("2U BLADE", badgeX + badgeWidth / 2, 285);
 
       // ---------------------------------------------------------
       // 2. CENTER COLUMN: BRAND DETAILS WITH STARTUP LOGO

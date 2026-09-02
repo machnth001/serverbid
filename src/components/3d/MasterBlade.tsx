@@ -88,12 +88,16 @@ export function MasterBlade({
       const badgeCenterX = badgeX + badgeWidth / 2;
 
       ctx.fillStyle = "#ffd700";
-      ctx.font = "bold 36px monospace";
-      ctx.fillText("MASTER", badgeCenterX, 220);
+      ctx.font = "bold 34px monospace";
+      ctx.fillText("MASTER", badgeCenterX, 185);
 
       ctx.fillStyle = "#ffffff";
-      ctx.font = "900 130px sans-serif";
-      ctx.fillText("#01", badgeCenterX, 375);
+      ctx.font = "900 120px sans-serif";
+      ctx.fillText("#01", badgeCenterX, 345);
+
+      ctx.fillStyle = "#ffd700";
+      ctx.font = "bold 26px monospace";
+      ctx.fillText("42U APEX", badgeCenterX, 465);
 
       // ---------------------------------------------------------
       // 2. CENTER COLUMN: REIGNING BRAND WITH LOGO
