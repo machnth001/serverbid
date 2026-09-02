@@ -128,6 +128,13 @@ export function HotSwapController({
     };
   }, [activeHotSwap, playAlarm, playSlide, playChunk]);
 
+  const handleSlotClick = (slotId: number) => {
+    if (selectedSlotId !== slotId) {
+      playSlide();
+    }
+    onSlotClick(slotId);
+  };
+
   return (
     <group>
       {slots.map((slot) => {
@@ -145,7 +152,7 @@ export function HotSwapController({
               isSelected={isSelected}
               isHotSwapping={isHotSwapping}
               ejectionZ={ejectionZ}
-              onClick={onSlotClick}
+              onClick={handleSlotClick}
               onHover={onSlotHover}
             />
           );
@@ -159,7 +166,7 @@ export function HotSwapController({
             isSelected={isSelected}
             isHotSwapping={isHotSwapping}
             ejectionZ={ejectionZ}
-            onClick={onSlotClick}
+            onClick={handleSlotClick}
             onHover={onSlotHover}
           />
         );
