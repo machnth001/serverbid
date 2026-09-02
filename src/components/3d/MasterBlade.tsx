@@ -182,8 +182,8 @@ export function MasterBlade({
         ctx.font = "bold 26px monospace";
         ctx.fillText(
           isHotSwapping
-            ? "⚡ HOT-SWAP TAKEOVER IN PROGRESS..."
-            : "● ONLINE // 100% HEALTH",
+            ? "HOT-SWAP TAKEOVER IN PROGRESS..."
+            : "ONLINE // 100% HEALTH",
           textX,
           455
         );

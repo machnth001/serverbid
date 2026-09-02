@@ -111,7 +111,7 @@ export function Header({
         >
           <span className="relative z-10 flex items-center gap-2">
             <span className="text-sm">⚡</span>
-            <span>CLAIM A SLOT</span>
+            <span>CLAIM A SERVER</span>
           </span>
           <div className="absolute inset-0 bg-white/25 translate-y-full group-hover:translate-y-0 transition-transform duration-200" />
         </button>

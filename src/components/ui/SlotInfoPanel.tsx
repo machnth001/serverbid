@@ -225,7 +225,7 @@ export function SlotInfoPanel({ slot, onClose, onBidClick }: SlotInfoPanelProps)
           <TrendingUp className="w-4 h-4 shrink-0" />
           <span className="truncate">
             {slot.status === "empty"
-              ? `CLAIM SLOT FOR ${formatBid(minBid)}`
+              ? `CLAIM SERVER FOR ${formatBid(minBid)}`
               : `HOT-SWAP FOR ${formatBid(minBid)}`}
           </span>
           <ChevronRight className="w-4 h-4 shrink-0" />
